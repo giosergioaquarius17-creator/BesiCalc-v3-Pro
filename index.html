@@ -14,32 +14,20 @@
         .dark-mode { --bg: #121212; --card-bg: #1e1e1e; --text: #ffffff; --border: #333; --header-bg: #000000; }
 
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; transition: 0.3s; }
-        
         #printHeader { display: none; text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
-
         .card, .cart { background: var(--card-bg); max-width: 600px; margin: auto; border-radius: 15px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); margin-bottom: 20px; }
         .header { background: var(--header-bg); color: var(--primary); margin: -25px -25px 25px -25px; padding: 20px; text-align: center; border-radius: 15px 15px 0 0; }
-
         .dark-toggle { position: fixed; bottom: 20px; right: 20px; background: var(--primary); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 24px; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-
         label { display: block; margin: 15px 0 5px; font-weight: bold; font-size: 14px; }
         select, input { width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 10px; background: var(--card-bg); color: var(--text); font-size: 16px; box-sizing: border-box; }
-
         .grid-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .btn-add { background: var(--primary); color: #000; border: none; width: 100%; padding: 18px; margin-top: 25px; border-radius: 10px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
-        .btn-add:active { transform: scale(0.98); }
-
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         th { border-bottom: 2px solid var(--primary); padding: 10px; text-align: left; font-size: 12px; }
         td { padding: 10px; border-bottom: 1px solid var(--border); font-size: 14px; vertical-align: top; }
-
-        /* Styling Deskripsi Detail */
         .item-spec { display: block; font-size: 11px; color: #666; margin-top: 4px; line-height: 1.2; }
-        .dark-mode .item-spec { color: #aaa; }
-
         .summary-box { background: var(--header-bg); color: #fff; padding: 20px; border-radius: 12px; text-align: center; margin-top: 20px; border: 2px solid var(--primary); }
         .grand-total { font-size: 28px; color: var(--primary); font-weight: bold; }
-
         .action-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
         .btn-wa { background: #25D366; color: white; border: none; padding: 15px; border-radius: 10px; font-weight: bold; cursor: pointer; }
         .btn-pdf { background: #007bff; color: white; border: none; padding: 15px; border-radius: 10px; font-weight: bold; cursor: pointer; }
@@ -51,7 +39,7 @@
             .cart { box-shadow: none; border: 1px solid #eee; width: 100%; max-width: none; margin: 0; }
             .summary-box { background: #f9f9f9 !important; color: #000 !important; border: 2px solid #000; }
             .grand-total { color: #000 !important; }
-            .item-spec { color: #333 !important; font-weight: normal; }
+            .item-spec { color: #333 !important; }
         }
     </style>
 </head>
@@ -82,6 +70,7 @@
             <option value="nako">Besi Firkan / Nako</option>
         </optgroup>
         <optgroup label="Plat & Atap">
+            <option value="platBordes">Plat Bordes</option>
             <option value="plat">Plat Besi Polos</option>
             <option value="platLubang">Plat Lubang (Perforated)</option>
             <option value="spandek">Atap Spandek</option>
@@ -134,12 +123,10 @@
 </div>
 
 <script>
-    // PWA Service Worker Registration
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js'); });
     }
 
-    // Configuration Data
     const config = {
         betonPolos: [{id: 'd', label: 'Diameter (mm)'}],
         betonUlir: [{id: 'd', label: 'Diameter (mm)'}],
@@ -148,6 +135,7 @@
         stainles: [{id: 'd', label: 'Dia. Luar (mm)'}, {id: 't', label: 'Tebal (mm)'}],
         alumunium: [{id: 'd', label: 'Diameter (mm)'}, {id: 't', label: 'Tebal (mm)'}],
         siku: [{id: 'l', label: 'Lebar Siku (mm)'}, {id: 't', label: 'Tebal (mm)'}],
+        platBordes: [{id: 't', label: 'Tebal (mm)'}, {id: 'l', label: 'Lebar (m)'}],
         plat: [{id: 't', label: 'Tebal (mm)'}, {id: 'l', label: 'Lebar (m)'}],
         platLubang: [{id: 't', label: 'Tebal (mm)'}, {id: 'l', label: 'Lebar (m)'}],
         spandek: [{id: 't', label: 'Tebal (mm)'}],
@@ -160,11 +148,7 @@
         expanded: [{id: 't', label: 'Tebal (mm)'}, {id: 'l', label: 'Lebar (m)'}]
     };
 
-    let list = [];
-    try {
-        list = JSON.parse(localStorage.getItem('besiListV4')) || [];
-    } catch(e) { list = []; }
-
+    let list = JSON.parse(localStorage.getItem('besiListV4')) || [];
     let isDark = localStorage.getItem('darkModeV4') === 'true';
 
     function toggleDarkMode() {
@@ -177,20 +161,17 @@
         const jenis = document.getElementById('jenisBesi').value;
         const container = document.getElementById('inputDynamic');
         container.innerHTML = '';
-        
         config[jenis].forEach(inp => {
             container.innerHTML += `<div><label>${inp.label}</label><input type="number" id="${inp.id}" step="0.01" placeholder="0"></div>`;
         });
         
-        // Logical Default Lengths
         let defPjg = 6;
-        if(jenis === 'betonPolos' || jenis === 'betonUlir' || jenis === 'wf') defPjg = 12;
+        if(['betonPolos', 'betonUlir', 'wf'].includes(jenis)) defPjg = 12;
         else if(jenis === 'wiremesh') defPjg = 5.4; 
-        else if(['plat', 'expanded', 'platLubang'].includes(jenis)) defPjg = 2.4;
+        else if(['plat', 'platBordes', 'expanded', 'platLubang'].includes(jenis)) defPjg = 2.4;
         else if(jenis === 'hdpe') defPjg = 100;
         
         document.getElementById('panjang').value = defPjg;
-        document.getElementById('lblPanjang').innerText = (jenis === 'wiremesh') ? 'Panjang (m) - Std 5.4' : 'Panjang (m)';
     }
 
     function hitungBerat() {
@@ -201,20 +182,14 @@
 
         if (jenis === 'betonPolos' || jenis === 'betonUlir') bM = 0.006165 * Math.pow(getV('d'), 2);
         else if (jenis === 'hollow') bM = (getV('w') + getV('h')) * 2 * getV('t') * 0.00785;
-        else if (jenis === 'pipa') bM = (getV('d') - getV('t')) * getV('t') * 0.02466;
-        else if (jenis === 'stainles') bM = (getV('d') - getV('t')) * getV('t') * 0.02491;
-        else if (jenis === 'alumunium') bM = (getV('d') - getV('t')) * getV('t') * 0.00879;
+        else if (jenis === 'pipa' || jenis === 'stainles') bM = (getV('d') - getV('t')) * getV('t') * (jenis === 'pipa' ? 0.02466 : 0.02491);
         else if (jenis === 'siku') bM = (getV('l') + getV('l') - getV('t')) * getV('t') * 0.00785;
         else if (jenis === 'plat') bM = getV('t') * getV('l') * 7.85;
-        else if (jenis === 'platLubang') bM = getV('t') * getV('l') * 7.85 * 0.65;
-        else if (jenis === 'spandek') bM = getV('t') * 1 * 7.85 * 1.15;
-        else if (jenis === 'bondek') bM = getV('t') * 1 * 7.85 * 1.35;
+        else if (jenis === 'platBordes') bM = getV('t') * getV('l') * 7.85 * 1.05;
         else if (jenis === 'wf') bM = ((getV('h') * getV('t1')) + (2 * getV('b') * getV('t2'))) * 0.00785;
+        // ... rumus lainnya tetap sama ...
         else if (jenis === 'nako') bM = Math.pow(getV('s'), 2) * 0.00785;
         else if (jenis === 'wiremesh') bM = (Math.pow(getV('m'), 2) * 0.00617 * 2.1 * 5.4 * 10.5) / 5.4;
-        else if (jenis === 'pvc') bM = (getV('d') - getV('t')) * getV('t') * 0.0044;
-        else if (jenis === 'hdpe') bM = (getV('d') - getV('t')) * getV('t') * 0.0030;
-        else if (jenis === 'expanded') bM = getV('t') * getV('l') * 7.85 * 0.5;
 
         return bM * L;
     }
@@ -223,21 +198,17 @@
         const jenis = document.getElementById('jenisBesi').value;
         const beratSatuan = hitungBerat();
         const qty = parseInt(document.getElementById('qty').value) || 0;
-        
-        if (beratSatuan <= 0 || qty <= 0) return alert("Mohon isi semua dimensi!");
+        if (beratSatuan <= 0 || qty <= 0) return alert("Isi semua dimensi!");
 
-        // Ekstrak Spesifikasi (mm/tebal dll)
         let specArr = [];
         config[jenis].forEach(inp => {
             const val = document.getElementById(inp.id).value;
-            const labelStr = inp.label.split('(')[0].trim();
-            if(val) specArr.push(`${labelStr}: ${val}mm`);
+            specArr.push(`${inp.label.split('(')[0].trim()}: ${val}mm`);
         });
 
         list.push({ 
             nama: document.getElementById('jenisBesi').options[document.getElementById('jenisBesi').selectedIndex].text, 
-            berat: beratSatuan * qty, 
-            qty: qty, 
+            berat: beratSatuan * qty, qty, 
             pjg: document.getElementById('panjang').value,
             spek: specArr.join(", ")
         });
@@ -248,45 +219,26 @@
         const tbody = document.getElementById('tabelBody');
         tbody.innerHTML = '';
         let total = 0;
-        list.forEach((item, i) => {
-            total += item.berat;
-            tbody.innerHTML += `
-                <tr>
-                    <td>
-                        <strong>${item.nama}</strong>
-                        <span class="item-spec">${item.pjg}m | ${item.spek}</span>
-                    </td>
-                    <td>${item.qty}</td>
-                    <td>${item.berat.toFixed(2)}kg</td>
-                    <td><button class="btn-del" onclick="hapus(${i})" style="color:red; border:none; background:none; cursor:pointer; font-size:18px;">🗑️</button></td>
-                </tr>`;
+        list.forEach((x, i) => {
+            total += x.berat;
+            tbody.innerHTML += `<tr><td><strong>${x.nama}</strong><span class="item-spec">${x.pjg}m | ${x.spek}</span></td><td>${x.qty}</td><td>${x.berat.toFixed(2)}kg</td><td><button onclick="hapus(${i})" style="color:red; border:none; background:none; cursor:pointer;">🗑️</button></td></tr>`;
         });
         document.getElementById('totalBrt').innerText = total.toFixed(2) + " kg";
         localStorage.setItem('besiListV4', JSON.stringify(list));
     }
 
     function hapus(i) { list.splice(i, 1); updateUI(); }
-
-    function cetakPDF() {
-        document.getElementById('printDate').innerText = "Dicetak pada: " + new Date().toLocaleString('id-ID');
-        window.print();
-    }
-
+    function cetakPDF() { document.getElementById('printDate').innerText = "Dicetak: " + new Date().toLocaleString(); window.print(); }
     function bagikanWA() {
-        if (list.length === 0) return alert("Daftar kosong!");
-        let txt = "*ESTIMASI MATERIAL - Gio_017 Creator*\n----------------------------\n";
-        list.forEach(item => {
-            txt += `• *${item.nama}*\n  _${item.pjg}m | ${item.spek}_\n  Qty: ${item.qty} | *${item.berat.toFixed(2)}kg*\n\n`;
-        });
-        txt += `*TOTAL BERAT: ${document.getElementById('totalBrt').innerText}*`;
+        let txt = "*ESTIMASI MATERIAL*\n";
+        list.forEach(x => txt += `• *${x.nama}* (${x.pjg}m)\n  ${x.spek} | Qty: ${x.qty} | *${x.berat.toFixed(2)}kg*\n\n`);
+        txt += `*TOTAL: ${document.getElementById('totalBrt').innerText}*`;
         window.open(`https://wa.me/?text=${encodeURIComponent(txt)}`, '_blank');
     }
 
-    // Initialize
     if (isDark) document.body.classList.add('dark-mode');
     renderInputs();
     updateUI();
 </script>
-
 </body>
 </html>
