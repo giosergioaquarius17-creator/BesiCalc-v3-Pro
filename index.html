@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BesiCalc v3 Pro - Database Material Lengkap</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1a1a1a">
+    <link rel="shortcut icon" href="https://cdn-icons-png.flaticon.com/512/2641/2641434.png">
+
+    <style>
+        :root { --primary: #ffcc00; --dark: #1a1a1a; --accent: #ffae00; --blue: #007bff; --green: #25D366; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; padding: 15px; }
+        
+        .card { background: white; max-width: 600px; margin: auto; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-top: 6px solid var(--primary); }
+        .header { background: var(--dark); color: var(--primary); padding: 20px; text-align: center; }
+        .header h2 { margin: 0; font-size: 24px; }
+        .header small { color: var(--primary); opacity: 0.8; }
+
+        .content { padding: 25px; }
+        label { display: block; margin: 12px 0 5px; font-weight: bold; color: #333; font-size: 14px; }
+        select, input { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; transition: 0.3s; }
+        select:focus, input:focus { border-color: var(--primary); outline: none; background: #fffdf5; }
+        
+        .grid-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 10px; }
+        .btn-add { background: var(--dark); color: var(--primary); border: none; width: 100%; padding: 16px; margin-top: 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; text-transform: uppercase; transition: 0.2s; }
+        .btn-add:hover { background: #333; transform: translateY(-2px); }
+        
+        .cart { margin-top: 25px; background: white; border-radius: 12px; padding: 20px; max-width: 600px; margin-left: auto; margin-right: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        th { border-bottom: 2px solid var(--primary); padding: 12px; text-align: left; color: #666; font-size: 13px; }
+        td { padding: 12px; border-bottom: 1px solid #eee; font-size: 14px; }
+        
+        .total-box { background: var(--dark); color: white; padding: 20px; border-radius: 8px; text-align: center; margin-bottom: 15px; }
+        .grand-total { font-size: 28px; color: var(--primary); font-weight: bold; }
+        
+        .action-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .btn-share { background: var(--green); color: white; border: none; padding: 14px; border-radius: 8px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-print { background: var(--blue); color: white; border: none; padding: 14px; border-radius: 8px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-del { color: #ff4d4d; border: none; background: none; cursor: pointer; font-size: 18px; }
+
+        @media print {
+            .card, .btn-add, .action-buttons, .btn-del, th:last-child, td:last-child { display: none; }
+            body { background: white; padding: 0; }
+            .cart { width: 100%; max-width: none; box-shadow: none; margin: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div class="header">
+        <h2>BesiCalc v3 Pro 🏗️</h2>
+        <small>Database Material Lengkap</small>
+    </div>
+    
+    <div class="content">
+        <label>Pilih Jenis Material</label>
+        <select id="jenisBesi" onchange="renderInputs()">
+            <optgroup label="Besi Umum">
+                <option value="beton">Besi Beton (Polos/Ulir)</option>
+                <option value="hollow">Besi Hollow (Kotak)</option>
+                <option value="pipa">Pipa Besi / Round Tube</option>
+                <option value="siku">Besi Siku (L-Beam)</option>
+            </optgroup>
+            <optgroup label="Plat & Baja Konstruksi">
+                <option value="plat">Plat Besi Polos</option>
+                <option value="bordes">Plat Bordes (Kembang)</option>
+                <option value="wf">Baja WF / H-Beam</option>
+                <option value="unp">Baja UNP (Kanal U)</option>
+                <option value="cnp">Baja CNP (Kanal C)</option>
+            </optgroup>
+        </select>
+
+        <div id="inputDynamic" class="grid-inputs" style="margin-top:10px;">
+            </div>
+
+        <div class="grid-inputs">
+            <div>
+                <label>Panjang (m)</label>
+                <input type="number" id="panjang" value="12" step="0.1">
+            </div>
+            <div>
+                <label>Jumlah (Qty)</label>
+                <input type="number" id="qty" value="1">
+            </div>
+        </div>
+
+        <button class="btn-add" onclick="tambahKeDaftar()">+ TAMBAH KE DAFTAR</button>
+    </div>
+</div>
+
+<div class="cart">
+    <table id="tabelItem">
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Qty</th>
+                <th>Berat Total</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <div class="total-box">
+        <span style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Estimasi Berat Keseluruhan</span><br>
+        <span class="grand-total" id="grandTotal">0.00 kg</span>
+    </div>
+
+    <div class="action-buttons">
+        <button class="btn-share" onclick="bagikanWA()">📲 WhatsApp</button>
+        <button class="btn-print" onclick="window.print()">📑 Cetak PDF</button>
+    </div>
+</div>
+
+<script>
+    const config = {
+        beton: [{id: 'd', label: 'Diameter (mm)'}],
+        hollow: [{id: 'w', label: 'Lebar (mm)'}, {id: 'h', label: 'Tinggi (mm)'}, {id: 't', label: 'Tebal (mm)'}],
+        pipa: [{id: 'd', label: 'Dia. Luar (mm)'}, {id: 't', label: 'Tebal (mm)'}],
+        plat: [{id: 't', label: 'Tebal (mm)'}, {id: 'l', label: 'Lebar (m)'}],
+        bordes: [{id: 't', label: 'Tebal (mm)'}, {id: 'l', label: 'Lebar (m)'}],
+        siku: [{id: 'l', label: 'Lebar Siku (mm)'}, {id: 't', label: 'Tebal (mm)'}],
+        wf: [{id: 'h', label: 'Tinggi H (mm)'}, {id: 'b', label: 'Lebar B (mm)'}, {id: 't1', label: 'Tebal Badan (mm)'}, {id: 't2', label: 'Tebal Sayap (mm)'}],
+        unp: [{id: 'h', label: 'Tinggi (mm)'}, {id: 'b', label: 'Lebar (mm)'}, {id: 't', label: 'Tebal (mm)'}],
+        cnp: [{id: 'h', label: 'Tinggi (mm)'}, {id: 'b', label: 'Lebar (mm)'}, {id: 't', label: 'Tebal (mm)'}]
+    };
+
+    let list = [];
+
+    function renderInputs() {
+        const jenis = document.getElementById('jenisBesi').value;
+        const container = document.getElementById('inputDynamic');
+        container.innerHTML = '';
+        config[jenis].forEach(inp => {
+            container.innerHTML += `<div><label>${inp.label}</label><input type="number" id="${inp.id}" placeholder="0"></div>`;
+        });
+        
+        // Atur panjang default (Beton 12m, lainnya 6m)
+        document.getElementById('panjang').value = (jenis === 'beton' || jenis === 'wf') ? 12 : 6;
+    }
+
+    function hitungBerat() {
+        const jenis = document.getElementById('jenisBesi').value;
+        const L = parseFloat(document.getElementById('panjang').value) || 0;
+        let bM = 0; 
+        const getV = (id) => parseFloat(document.getElementById(id).value) || 0;
+
+        if (jenis === 'beton') bM = 0.006165 * Math.pow(getV('d'), 2);
+        else if (jenis === 'hollow') bM = (getV('w') + getV('h')) * 2 * getV('t') * 0.00785;
+        else if (jenis === 'pipa') bM = (getV('d') - getV('t')) * getV('t') * 0.02466;
+        else if (jenis === 'plat') bM = getV('t') * getV('l') * 7.85;
+        else if (jenis === 'bordes') bM = (getV('t') * 7.85 + 2.5) * getV('l');
+        else if (jenis === 'siku') bM = (getV('l') + getV('l') - getV('t')) * getV('t') * 0.00785;
+        else if (jenis === 'wf') bM = ((getV('h') * getV('t1')) + (2 * getV('b') * getV('t2'))) * 0.00785;
+        else if (jenis === 'unp') bM = (getV('h') + (2 * getV('b'))) * getV('t') * 0.00785;
+        else if (jenis === 'cnp') bM = (getV('h') + (2 * getV('b')) + 30) * getV('t') * 0.00785;
+
+        return bM * L;
+    }
+
+    function tambahKeDaftar() {
+        const sel = document.getElementById('jenisBesi');
+        const n = sel.options[sel.selectedIndex].text;
+        const q = parseInt(document.getElementById('qty').value) || 0;
+        const p = document.getElementById('panjang').value;
+        const brt = hitungBerat() * q;
+
+        if (brt <= 0) return alert("Mohon lengkapi dimensi!");
+
+        list.push({ n, q, p, brt });
+        updateTabel();
+    }
+
+    function updateTabel() {
+        const tb = document.querySelector('#tabelItem tbody');
+        tb.innerHTML = '';
+        let gt = 0;
+        list.forEach((x, i) => {
+            gt += x.brt;
+            tb.innerHTML += `<tr>
+                <td><strong>${x.n}</strong><br><small>${x.p} meter</small></td>
+                <td>${x.q}</td>
+                <td>${x.brt.toFixed(2)} kg</td>
+                <td class="btn-del"><button onclick="hapus(${i})">🗑️</button></td>
+            </tr>`;
+        });
+        document.getElementById('grandTotal').innerText = gt.toFixed(2) + " kg";
+    }
+
+    function hapus(i) { list.splice(i, 1); updateTabel(); }
+
+    function bagikanWA() {
+        if (list.length === 0) return alert("Daftar kosong!");
+        let txt = "*HASIL HITUNG BESI & BAJA*\n";
+        let tot = 0;
+        list.forEach(x => {
+            txt += `\n- ${x.n} (${x.p}m)\n  Qty: ${x.q} | Berat: *${x.brt.toFixed(2)} kg*`;
+            tot += x.brt;
+        });
+        txt += `\n\n*TOTAL BERAT: ${tot.toFixed(2)} kg*`;
+        window.open(`https://wa.me/?text=${encodeURIComponent(txt)}`, '_blank');
+    }
+
+    // Register Service Worker for PWA
+    if('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js');
+    }
+
+    renderInputs();
+</script>
+
+</body>
+</html>
