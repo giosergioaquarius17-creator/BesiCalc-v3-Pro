@@ -3,53 +3,184 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BesiCalc v4 Pro</title>
+    <title>BesiCalc v4 Pro - Technical Edition</title>
+    
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1a1a1a">
-    <style>
-        :root { --primary: #ffcc00; --bg: #f0f2f5; --card-bg: #ffffff; --text: #1a1a1a; --border: #ddd; }
-        .dark-mode { --bg: #121212; --card-bg: #1e1e1e; --text: #ffffff; --border: #333; }
+    <link rel="shortcut icon" href="https://cdn-icons-png.flaticon.com/512/2641/2641434.png">
 
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; transition: 0.3s; }
-        .card, .cart { background: var(--card-bg); max-width: 600px; margin: auto; border-radius: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .header { text-align: center; margin-bottom: 20px; }
+    <style>
+        :root { 
+            --primary: #ffcc00; 
+            --bg: #f0f2f5; 
+            --card-bg: #ffffff; 
+            --text: #1a1a1a; 
+            --border: #ddd; 
+            --header-bg: #1a1a1a;
+        }
+
+        .dark-mode { 
+            --bg: #121212; 
+            --card-bg: #1e1e1e; 
+            --text: #ffffff; 
+            --border: #333; 
+            --header-bg: #000000;
+        }
+
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: var(--bg); 
+            color: var(--text); 
+            margin: 0; 
+            padding: 15px; 
+            transition: background 0.3s, color 0.3s; 
+        }
+
+        .card, .cart { 
+            background: var(--card-bg); 
+            max-width: 600px; 
+            margin: auto; 
+            border-radius: 15px; 
+            padding: 25px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+            border: 1px solid var(--border);
+        }
+
+        .header { 
+            background: var(--header-bg); 
+            color: var(--primary); 
+            margin: -25px -25px 25px -25px; 
+            padding: 20px; 
+            text-align: center; 
+            border-radius: 15px 15px 0 0;
+        }
+
+        .dark-toggle { 
+            position: fixed; 
+            bottom: 20px; 
+            right: 20px; 
+            background: var(--primary); 
+            width: 50px; 
+            height: 50px; 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            cursor: pointer; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            font-size: 24px;
+            z-index: 1000;
+        }
+
+        label { display: block; margin: 15px 0 5px; font-weight: bold; font-size: 14px; }
         
-        .dark-toggle { position: absolute; top: 15px; right: 15px; cursor: pointer; font-size: 24px; }
-        label { display: block; margin: 10px 0 5px; font-weight: bold; font-size: 14px; }
-        input, select { width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; box-sizing: border-box; background: var(--card-bg); color: var(--text); font-size: 16px; }
-        
-        .grid-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .btn-add { background: var(--primary); color: #000; border: none; width: 100%; padding: 16px; margin-top: 20px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        
+        select, input { 
+            width: 100%; 
+            padding: 12px; 
+            border: 2px solid var(--border); 
+            border-radius: 10px; 
+            box-sizing: border-box; 
+            background: var(--card-bg); 
+            color: var(--text); 
+            font-size: 16px; 
+            outline: none;
+        }
+
+        select:focus, input:focus { border-color: var(--primary); }
+
+        .grid-inputs { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 15px; 
+        }
+
+        .btn-add { 
+            background: var(--primary); 
+            color: #000; 
+            border: none; 
+            width: 100%; 
+            padding: 18px; 
+            margin-top: 25px; 
+            border-radius: 10px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            font-size: 16px; 
+            text-transform: uppercase;
+        }
+
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th { border-bottom: 2px solid var(--primary); padding: 10px; text-align: left; font-size: 12px; }
-        td { padding: 10px; border-bottom: 1px solid var(--border); font-size: 14px; }
+        th { border-bottom: 2px solid var(--primary); padding: 12px; text-align: left; font-size: 12px; color: #888; }
+        td { padding: 12px; border-bottom: 1px solid var(--border); font-size: 14px; }
+
+        .summary-box { 
+            background: var(--header-bg); 
+            color: #fff; 
+            padding: 20px; 
+            border-radius: 12px; 
+            margin-top: 25px; 
+            text-align: center; 
+        }
+
+        .grand-total { font-size: 32px; color: var(--primary); font-weight: bold; display: block; }
+
+        .btn-del { color: #ff4d4d; border: none; background: none; cursor: pointer; font-size: 18px; }
         
-        .summary-box { background: #1a1a1a; color: #fff; padding: 15px; border-radius: 8px; margin-top: 20px; text-align: center; }
-        .grand-total { font-size: 24px; color: var(--primary); font-weight: bold; }
-        .price-total { font-size: 18px; color: #4ade80; }
+        .action-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
         
-        .btn-del { color: #ff4d4d; border: none; background: none; cursor: pointer; }
-        .action-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
-        .btn-wa { background: #25D366; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .btn-wa { 
+            background: #25D366; 
+            color: white; 
+            border: none; 
+            padding: 15px; 
+            border-radius: 10px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-reset { 
+            background: #666; 
+            color: white; 
+            border: none; 
+            border-radius: 10px; 
+            cursor: pointer; 
+        }
+
+        @media print {
+            .dark-toggle, .btn-add, .action-btns, .btn-del, .card { display: none; }
+            body { background: white; padding: 0; }
+            .cart { box-shadow: none; border: none; width: 100%; max-width: none; }
+        }
     </style>
 </head>
 <body>
 
-<div class="dark-toggle" onclick="toggleDarkMode()">🌓</div>
+<div class="dark-toggle" onclick="toggleDarkMode()" title="Ganti Mode">🌓</div>
 
 <div class="card">
     <div class="header">
         <h2 style="margin:0">BesiCalc v4 Pro 🏗️</h2>
-        <small>Estimator Berat & Harga Pasar</small>
+        <small>Database Material & Estimator Berat</small>
     </div>
 
     <label>Jenis Material</label>
     <select id="jenisBesi" onchange="renderInputs()">
-        <option value="beton">Besi Beton</option>
-        <option value="hollow">Besi Hollow</option>
-        <option value="plat">Plat Besi</option>
-        <option value="wf">Baja WF / H-Beam</option>
+        <optgroup label="Besi Umum">
+            <option value="beton">Besi Beton (Polos/Ulir)</option>
+            <option value="hollow">Besi Hollow (Kotak)</option>
+            <option value="pipa">Pipa Besi / Round Tube</option>
+            <option value="siku">Besi Siku (L-Beam)</option>
+        </optgroup>
+        <optgroup label="Plat & Baja Berat">
+            <option value="plat">Plat Besi Polos</option>
+            <option value="bordes">Plat Bordes</option>
+            <option value="wf">Baja WF / H-Beam</option>
+            <option value="unp">Baja UNP</option>
+            <option value="cnp">Baja CNP</option>
+        </optgroup>
     </select>
 
     <div id="inputDynamic" class="grid-inputs"></div>
@@ -65,19 +196,17 @@
         </div>
     </div>
 
-    <label>Harga per Kg (Rp)</label>
-    <input type="number" id="hargaManual" placeholder="Contoh: 15000" oninput="savePrice()">
-
     <button class="btn-add" onclick="tambahKeDaftar()">+ TAMBAH KE DAFTAR</button>
 </div>
 
-<div class="cart" style="margin-top:20px;">
+<div class="cart" style="margin-top:25px;">
+    <h3>📋 Daftar Hitungan</h3>
     <table>
         <thead>
             <tr>
                 <th>Item</th>
-                <th>Berat</th>
-                <th>Harga Est.</th>
+                <th>Qty</th>
+                <th>Berat Total</th>
                 <th></th>
             </tr>
         </thead>
@@ -85,35 +214,37 @@
     </table>
 
     <div class="summary-box">
-        <div>Total Berat: <span id="totalBrt" class="grand-total">0 kg</span></div>
-        <div style="margin-top:10px;">Total Biaya: <span id="totalHrg" class="price-total">Rp 0</span></div>
+        <span style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.7;">Total Berat Keseluruhan</span>
+        <span id="totalBrt" class="grand-total">0.00 kg</span>
     </div>
 
     <div class="action-btns">
         <button class="btn-wa" onclick="bagikanWA()">📲 WhatsApp</button>
-        <button onclick="hapusSemua()" style="background:#666; color:white; border:none; border-radius:8px; cursor:pointer;">🗑️ Reset</button>
+        <button class="btn-reset" onclick="hapusSemua()">🗑️ Reset</button>
     </div>
 </div>
 
 <script>
-    let list = JSON.parse(localStorage.getItem('besiList')) || [];
-    let isDark = localStorage.getItem('darkMode') === 'true';
+    // Inisialisasi Data dari Local Storage
+    let list = JSON.parse(localStorage.getItem('besiListV4')) || [];
+    let isDark = localStorage.getItem('darkModeV4') === 'true';
 
     function toggleDarkMode() {
         isDark = !isDark;
         document.body.classList.toggle('dark-mode', isDark);
-        localStorage.setItem('darkMode', isDark);
-    }
-
-    function savePrice() {
-        localStorage.setItem('lastPrice', document.getElementById('hargaManual').value);
+        localStorage.setItem('darkModeV4', isDark);
     }
 
     const config = {
         beton: [{id: 'd', label: 'Diameter (mm)'}],
         hollow: [{id: 'w', label: 'Lebar (mm)'}, {id: 'h', label: 'Tinggi (mm)'}, {id: 't', label: 'Tebal (mm)'}],
+        pipa: [{id: 'd', label: 'Dia. Luar (mm)'}, {id: 't', label: 'Tebal (mm)'}],
+        siku: [{id: 'l', label: 'Lebar Siku (mm)'}, {id: 't', label: 'Tebal (mm)'}],
         plat: [{id: 't', label: 'Tebal (mm)'}, {id: 'l', label: 'Lebar (m)'}],
-        wf: [{id: 'h', label: 'Tinggi (mm)'}, {id: 'b', label: 'Lebar (mm)'}, {id: 't1', label: 'Tebal Bdn'}, {id: 't2', label: 'Tebal Syp'}]
+        bordes: [{id: 't', label: 'Tebal (mm)'}, {id: 'l', label: 'Lebar (m)'}],
+        wf: [{id: 'h', label: 'Tinggi H (mm)'}, {id: 'b', label: 'Lebar B (mm)'}, {id: 't1', label: 'Tebal Badan'}, {id: 't2', label: 'Tebal Sayap'}],
+        unp: [{id: 'h', label: 'Tinggi (mm)'}, {id: 'b', label: 'Lebar (mm)'}, {id: 't', label: 'Tebal (mm)'}],
+        cnp: [{id: 'h', label: 'Tinggi (mm)'}, {id: 'b', label: 'Lebar (mm)'}, {id: 't', label: 'Tebal (mm)'}]
     };
 
     function renderInputs() {
@@ -121,8 +252,9 @@
         const container = document.getElementById('inputDynamic');
         container.innerHTML = '';
         config[jenis].forEach(inp => {
-            container.innerHTML += `<div><label>${inp.label}</label><input type="number" id="${inp.id}"></div>`;
+            container.innerHTML += `<div><label>${inp.label}</label><input type="number" id="${inp.id}" placeholder="0"></div>`;
         });
+        // Default Panjang
         document.getElementById('panjang').value = (jenis === 'beton' || jenis === 'wf') ? 12 : 6;
     }
 
@@ -134,68 +266,8 @@
 
         if (jenis === 'beton') bM = 0.006165 * Math.pow(getV('d'), 2);
         else if (jenis === 'hollow') bM = (getV('w') + getV('h')) * 2 * getV('t') * 0.00785;
+        else if (jenis === 'pipa') bM = (getV('d') - getV('t')) * getV('t') * 0.02466;
+        else if (jenis === 'siku') bM = (getV('l') + getV('l') - getV('t')) * getV('t') * 0.00785;
         else if (jenis === 'plat') bM = getV('t') * getV('l') * 7.85;
-        else if (jenis === 'wf') bM = ((getV('h') * getV('t1')) + (2 * getV('b') * getV('t2'))) * 0.00785;
-
-        return bM * L;
-    }
-
-    function tambahKeDaftar() {
-        const harga = parseFloat(document.getElementById('hargaManual').value) || 0;
-        const beratSatuan = hitungBerat();
-        const qty = parseInt(document.getElementById('qty').value) || 0;
-        const beratTotal = beratSatuan * qty;
-        
-        if (beratTotal <= 0) return alert("Isi dimensi!");
-
-        const item = {
-            nama: document.getElementById('jenisBesi').options[document.getElementById('jenisBesi').selectedIndex].text,
-            berat: beratTotal,
-            hargaEst: beratTotal * harga,
-            qty: qty
-        };
-
-        list.push(item);
-        updateUI();
-    }
-
-    function updateUI() {
-        const tbody = document.getElementById('tabelBody');
-        tbody.innerHTML = '';
-        let totalBrt = 0, totalHrg = 0;
-
-        list.forEach((x, i) => {
-            totalBrt += x.berat;
-            totalHrg += x.hargaEst;
-            tbody.innerHTML += `<tr>
-                <td>${x.nama} (x${x.qty})</td>
-                <td>${x.berat.toFixed(2)}kg</td>
-                <td>Rp ${x.hargaEst.toLocaleString()}</td>
-                <td><button class="btn-del" onclick="hapus(${i})">🗑️</button></td>
-            </tr>`;
-        });
-
-        document.getElementById('totalBrt').innerText = totalBrt.toFixed(2) + " kg";
-        document.getElementById('totalHrg').innerText = "Rp " + totalHrg.toLocaleString();
-        localStorage.setItem('besiList', JSON.stringify(list));
-    }
-
-    function hapus(i) { list.splice(i, 1); updateUI(); }
-    function hapusSemua() { if(confirm("Hapus semua data?")) { list = []; updateUI(); } }
-
-    function bagikanWA() {
-        let txt = "*ESTIMASI HARGA BESI*\n";
-        list.forEach(x => txt += `\n- ${x.nama} (x${x.qty}): ${x.berat.toFixed(2)}kg | Rp${x.hargaEst.toLocaleString()}`);
-        txt += `\n\n*TOTAL: Rp ${document.getElementById('totalHrg').innerText}*`;
-        window.open(`https://wa.me/?text=${encodeURIComponent(txt)}`, '_blank');
-    }
-
-    // Init
-    if (isDark) document.body.classList.add('dark-mode');
-    document.getElementById('hargaManual').value = localStorage.getItem('lastPrice') || "";
-    renderInputs();
-    updateUI();
-</script>
-
-</body>
-</html>
+        else if (jenis === 'bordes') bM = (getV('t') * 7.85 + 2.5) * getV('l');
+        else if (jenis === 'wf') bM = ((getV('h') * getV('t1')) + (2 * getV('b') * getV('t2'))) *
